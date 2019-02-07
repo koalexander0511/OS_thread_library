@@ -18,5 +18,5 @@ void preempt_enable(void);
  * preempt_disable - Disable preemption
  */
 void preempt_disable(void);
-
+int count;
 #endif /* _PREEMPT_H */

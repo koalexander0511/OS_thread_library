@@ -12,8 +12,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <uthread.h>
+#include "preempt.h"
 
 int threadC(void* arg)
 {
@@ -47,27 +47,16 @@ int threadA(void* arg)
 
 int main(void)
 {
-	int retval;
+	preempt_start();
 
-	uthread_join(uthread_create(threadA, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadB, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadB, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadC, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadA, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadB, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadC, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadA, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadB, NULL), &retval);
-	printf("----thread %d collected\n",retval);
-	uthread_join(uthread_create(threadC, NULL), &retval);
-printf("----thread %d collected\n",retval);
+	for(int i=0;;i++)
+	{
+		printf("%d ",count);
+		if(count == 50)
+		{
+			preempt_disable();
+			preempt_enable();
+		}
+	}
 	return 0;
 }

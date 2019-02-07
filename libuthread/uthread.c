@@ -131,7 +131,14 @@ int uthread_join(uthread_t tid, int *retval)
 	/*DEBUGMODE*/printf("Thread %d looking for thread %d...\n",curr_thread->id,tid);
 	struct uthread_tcb * target = NULL;
 	queue_iterate(zombies, find_tcb, (void*)&tid, (void**)&target);
-	
+
+	struct uthread_tcb * target_in_thread_queue = NULL;
+	queue_iterate(thread_queue, find_tcb, (void*)&tid, (void**)&target_in_thread_queue);
+
+	//exit with error if both serches fail: the target thread doesn't exist
+	if(target == NULL && target_in_thread_queue == NULL)
+		return -1;
+
 	//keep pushing this thread in the queue with blocked state while the child thread is running
 	while(target == NULL)
 	{	
@@ -141,13 +148,16 @@ int uthread_join(uthread_t tid, int *retval)
 		queue_iterate(zombies, find_tcb, (void*)&tid, (void**)&target);
 	}
 
+	if(target->state == blocked)
+		return -1;
+
+	target->state = blocked;
+
 	/*DEBUGMODE*/printf("Thread %d found thread %d...\n",curr_thread->id,tid);
 
-	//child is done executing, time to get some shit done
 	*retval = target->retval;
 	uthread_ctx_destroy_stack(target->stack_addr);
 	queue_delete(zombies, target);
-
 
 	curr_thread->state = running;
 	uthread_yield();

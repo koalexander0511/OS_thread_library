@@ -3,7 +3,8 @@ programs := \
 	test_queue.x \
 	uthread_hello.x \
 	uthread_yield.x  \
-	mytest.x
+	mytest.x \
+	uthread_preempt.x
 
 # User-level thread library
 UTHREADLIB := libuthread
