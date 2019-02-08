@@ -69,11 +69,15 @@ int queue_dequeue(queue_t queue, void **data)
 
 int queue_delete(queue_t queue, void *data)
 {
+	node* toDelete;
+
 	if(queue == NULL || data == NULL || queue->length == 0)
 		return -1;
 
 	if(queue->head->data == data) {
+		toDelete = queue->head;
 		queue->head = queue->head->next;
+		free(toDelete);
 		queue->length--;
 		return 0;
 	} 
@@ -82,7 +86,7 @@ int queue_delete(queue_t queue, void *data)
 
 	while(curr->next != NULL) {
 		if(curr->next->data == data) {
-			node* toDelete = curr->next;
+			toDelete = curr->next;
 			curr->next = toDelete->next;
 
 			free(toDelete);

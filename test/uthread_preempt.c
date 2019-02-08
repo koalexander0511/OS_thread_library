@@ -38,8 +38,10 @@ int thread2(void* arg)
 
 int thread1(void* arg)
 {
-	while(1)
+	printf("I am Thread 1 and I will NEVER yield!\n");
+	while(1);
 
+	uthread_exit(0);
 	return 0;
 }
 
@@ -56,7 +58,7 @@ int main(void)
 	
 	uthread_join(id3, &retval);
 	uthread_join(id2, &retval);
-	printf("Success!\nI'm not gonna collect thread 1 because he's an asshole!\n");
+	printf("Success!\nNot collecting thread 1 because it will never exit\n");
 
 	return 0;
 }

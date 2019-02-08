@@ -13,7 +13,7 @@
  * Frequency of preemption
  * 100Hz is 100 times per second
  */
-#define HZ 2
+#define HZ 100
 
 float usec = 1000000/HZ;
 sigset_t block_alarm;

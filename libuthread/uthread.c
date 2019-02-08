@@ -42,18 +42,13 @@ preempt_disable();
 		curr_thread->state = ready;
 
 	if(curr_thread->state == done)
-	{	
-		/*DEBUGMODE*/printf("Thread %d dead, put into zombie queue...\n", curr_thread->id);
 		queue_enqueue(zombies, (void*)curr_thread);
-	}
 	else
 		queue_enqueue(thread_queue, (void*)curr_thread);
 
 	prev = curr_thread;
 
 	queue_dequeue(thread_queue, (void**)&curr_thread);
-
-	/*DEBUGMODE*/printf("Thread %d yielding to thread %d...\n",prev->id,curr_thread->id);
 
 	if(curr_thread->state == ready)
 		curr_thread->state = running;
@@ -120,7 +115,6 @@ void uthread_exit(int retval)
 
 preempt_disable();
 
-	/*DEBUGMODE*/printf("Thread %d exiting...\n",curr_thread->id);
 	curr_thread->state = done;
 	curr_thread->retval = retval;
 	uthread_yield();
@@ -144,12 +138,10 @@ int uthread_join(uthread_t tid, int *retval)
 
 preempt_disable();
 
-	/*DEBUGMODE*/printf("Thread %d called join to get thread %d...\n",curr_thread->id,tid);
 	//exit with error if trying to join main thread, or with itself
 	if(tid == 0 || tid == curr_thread->id)
 		return -1;
 
-	/*DEBUGMODE*/printf("Thread %d looking for thread %d...\n",curr_thread->id,tid);
 	struct uthread_tcb * target = NULL;
 	queue_iterate(zombies, find_tcb, (void*)&tid, (void**)&target);
 
@@ -165,7 +157,6 @@ preempt_disable();
 	{	
 		curr_thread->state = blocked;
 		uthread_yield();
-		/*DEBUGMODE*/printf("Thread %d looking for thread %d...\n",curr_thread->id,tid);
 		queue_iterate(zombies, find_tcb, (void*)&tid, (void**)&target);
 	}
 
@@ -174,9 +165,8 @@ preempt_disable();
 
 	target->state = blocked;
 
-	/*DEBUGMODE*/printf("Thread %d found thread %d...\n",curr_thread->id,tid);
-
-	*retval = target->retval;
+	if(target->retval)
+		*retval = target->retval;
 	uthread_ctx_destroy_stack(target->stack_addr);
 	queue_delete(zombies, target);
 

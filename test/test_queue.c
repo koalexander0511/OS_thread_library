@@ -95,9 +95,9 @@ void test_iterator(void) {
 
 int main(void)
 {
-	printf("Testing Queue...\n");
+	printf("Testing Queue...");
 	test_create_destroy_enqueue_dequeue_length_delete();
 	test_iterator();
-
+	printf("Done!\nEverything's good!\n");
 	return 0;
 }
