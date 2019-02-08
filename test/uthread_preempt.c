@@ -13,49 +13,50 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <uthread.h>
-#include "preempt.h"
+#include <unistd.h>
 
 int retval;
 
 int thread3(void* arg)
 {
-	while(1);
+	printf("I am Thread 3 and I will yield!\n");
+	uthread_yield();
+	
+	uthread_exit(0);
 
-	uthread_exit(3);
 	return 0;
 }
 
 int thread2(void* arg)
 {
-	while(1);
-
-	uthread_exit(20+retval);
+	printf("I am Thread 2 and I will yield!\n");
+	uthread_yield();
+	
+	uthread_exit(0);
 	return 0;
 }
 
 int thread1(void* arg)
 {
-	while(1);
+	while(1)
 
-	uthread_exit(100+retval);
 	return 0;
 }
 
 int main(void)
 {
-	uthread_t id1,id2,id3;
+	uthread_t id2,id3;
 
-	preempt_start();
-
-	id1 = uthread_create(thread1, NULL);
+	uthread_create(thread1, NULL);
 	id2 = uthread_create(thread2, NULL);
 	id3 = uthread_create(thread3, NULL);
 
-	while(1);
 
-	uthread_join(id1, &retval);
-	uthread_join(id2, &retval);
+	
+	
 	uthread_join(id3, &retval);
+	uthread_join(id2, &retval);
+	printf("Success!\nI'm not gonna collect thread 1 because he's an asshole!\n");
 
 	return 0;
 }

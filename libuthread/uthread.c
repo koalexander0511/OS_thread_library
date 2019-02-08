@@ -33,6 +33,8 @@ void uthread_yield(void)
 	
 	struct uthread_tcb *prev;
 
+preempt_disable();
+
 	//If no other thread is waiting to be executed, just keep executing this thread
 	if(queue_length(thread_queue) == 0)
 		return;
@@ -57,6 +59,9 @@ void uthread_yield(void)
 		curr_thread->state = running;
 	
 	uthread_ctx_switch(prev->context, curr_thread->context);
+
+preempt_enable();
+
 }
 
 uthread_t uthread_self(void)
@@ -78,6 +83,9 @@ void create_main_thread(){
 	curr_thread = main_thread;
 
 	THREAD_ID_COUNT++;
+	
+	//Start Preemption
+	preempt_start();
 }
 
 int uthread_create(uthread_func_t func, void *arg)
@@ -87,6 +95,8 @@ int uthread_create(uthread_func_t func, void *arg)
 
 	if(THREAD_ID_COUNT == 0)
 		create_main_thread();
+
+preempt_disable();
 
 	struct uthread_tcb *thread = malloc (sizeof(struct uthread_tcb));
 	thread->context = malloc(sizeof(uthread_ctx_t));
@@ -98,6 +108,8 @@ int uthread_create(uthread_func_t func, void *arg)
 	thread->id = THREAD_ID_COUNT;
 	
 	queue_enqueue(thread_queue, (void*)thread);
+	
+preempt_enable();
 
 	THREAD_ID_COUNT++;
 	return thread->id;
@@ -105,10 +117,16 @@ int uthread_create(uthread_func_t func, void *arg)
 
 void uthread_exit(int retval)
 {
+
+preempt_disable();
+
 	/*DEBUGMODE*/printf("Thread %d exiting...\n",curr_thread->id);
 	curr_thread->state = done;
 	curr_thread->retval = retval;
 	uthread_yield();
+
+preempt_enable();
+
 }
 
 // Callback function that finds thread according to its tid
@@ -123,6 +141,9 @@ static int find_tcb(void *data, void *args) {
 
 int uthread_join(uthread_t tid, int *retval)
 {
+
+preempt_disable();
+
 	/*DEBUGMODE*/printf("Thread %d called join to get thread %d...\n",curr_thread->id,tid);
 	//exit with error if trying to join main thread, or with itself
 	if(tid == 0 || tid == curr_thread->id)
@@ -161,5 +182,8 @@ int uthread_join(uthread_t tid, int *retval)
 
 	curr_thread->state = running;
 	uthread_yield();
+
+preempt_enable();
+
 	return 0;
 }

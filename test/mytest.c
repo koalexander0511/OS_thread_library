@@ -1,19 +1,6 @@
-/*
- * Thread creation and yielding test
- *
- * Tests the creation of multiples threads and the fact that a parent thread
- * should get returned to before its child is executed. The way the printing,
- * thread creation and yielding is done, the program should output:
- *
- * thread1
- * thread2
- * thread3
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <uthread.h>
-#include "preempt.h"
 
 int threadC(void* arg)
 {
@@ -47,16 +34,9 @@ int threadA(void* arg)
 
 int main(void)
 {
-	preempt_start();
-
-	for(int i=0;;i++)
+	for(int i=0; ;i++)
 	{
-		printf("%d ",count);
-		if(count == 50)
-		{
-			preempt_disable();
-			preempt_enable();
-		}
+		printf(".");
 	}
 	return 0;
 }

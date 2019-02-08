@@ -1,1 +1,1 @@
-mytest.o: mytest.c ../libuthread/uthread.h ../libuthread/preempt.h
+mytest.o: mytest.c ../libuthread/uthread.h
